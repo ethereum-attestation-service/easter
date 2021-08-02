@@ -1,5 +1,10 @@
+import Onboard from 'bnc-onboard'
+
 const ethers = require("ethers");
 const easABI = require("../EASabi.json");
+
+const blockNativeAPIKey = '0822d008-0624-4b0f-a5d5-24aac01cdd72';
+const networkID = 4;
 const zero = "0x0000000000000000000000000000000000000000";
 const easAddress = "0xBf49E19254DF70328C6696135958C94CD6cd0430";
 const messageUUID =
@@ -7,14 +12,25 @@ const messageUUID =
 const usernameUUID =
   "0x1a1aac09dcf87a6662ca6f7cfda6cf8ab0d7e2b6fc4afcde3112480a36c563b1";
 let usernameCache = [];
+const RPC_URL = 'https://rinkeby.infura.io/v3/7beca79f4be84480b5557a579b1016dc';
 
 let provider;
+let easContract
 
-if (window.web3) {
-  provider = new ethers.providers.Web3Provider(window.web3.currentProvider);
+export const onboard = Onboard({
+  dappId: blockNativeAPIKey,       // [String] The API key created by step one above
+  networkId: networkID,  // [Integer] The Ethereum network ID your Dapp uses.
+  subscriptions: {
+    wallet: wallet => {
+      provider = new ethers.providers.Web3Provider(wallet.provider);
+      easContract = new ethers.Contract(easAddress, easABI, provider);
+    },
+  }
+});
+
+export async function getBalance(address) {
+  return await provider.getBalance(address);
 }
-
-const easContract = new ethers.Contract(easAddress, easABI, provider);
 
 export async function setUsername(username) {
   const signer = provider.getSigner();

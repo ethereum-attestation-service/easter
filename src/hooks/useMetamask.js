@@ -5,15 +5,17 @@ export default function useMetaMask() {
   const [metamaskInstalled, setMetamaskInstalled] = useState(null);
 
   useEffect(() => {
-    if (typeof window.ethereum !== "undefined") {
-      setMetamaskInstalled(true);
 
-      setTimeout(() => {
-        if (window.ethereum.selectedAddress) {
-          setAccount(window.ethereum.selectedAddress);
-        }
-      }, 500);
-    }
+
+    // if (typeof window.ethereum !== "undefined") {
+    //   setMetamaskInstalled(true);
+    //
+    //   setTimeout(() => {
+    //     if (window.ethereum.selectedAddress) {
+    //       setAccount(window.ethereum.selectedAddress);
+    //     }
+    //   }, 500);
+    // }
   }, []);
 
   return [account, metamaskInstalled, setAccount];

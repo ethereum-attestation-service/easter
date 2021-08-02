@@ -2,28 +2,33 @@ import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { Pill } from "./Pill";
-import { getUsername } from "../utils/Utils";
+import {getBalance, getUsername, onboard} from "../utils/Utils";
 import { ChangeUsernameDialog } from "./ChangeUsernameDialog";
 
-export function Account({ address }) {
+export function Account({ address, setAccount }) {
   const isSmall = useIsSmallScreen();
   const formattedAddress = ethers.utils.getAddress(address);
   const [username, setUsername] = useState(null);
+  const [balance, setBalance] = useState(null);
   const [editingUsername, setEditingUsername] = useState(false);
 
   async function getUser() {
     const username = await getUsername(address);
     setUsername(username);
+
+    const balance = await getBalance(address);
+    const ethBalance = ethers.utils.formatEther(balance);
+    setBalance(Number(ethBalance).toFixed(3));
   }
 
   useEffect(() => {
     getUser();
-  }, []);
+  }, [address]);
 
   const styles = {
     container: {
       display: "flex",
-      justifyContent: "flex-start",
+      justifyContent: isSmall?"space-between":"flex-start",
     },
 
     separator: {
@@ -49,6 +54,20 @@ export function Account({ address }) {
       />
       <div style={styles.separator}></div>
       <Pill
+        value={balance + 'ETH'}
+      />
+      <div style={styles.separator}></div>
+      <Pill
+        onClick={async () => {
+          const select = await onboard.walletSelect();
+          if (select) {
+            const check = await onboard.walletCheck();
+            if (check) {
+              const state = onboard.getState();
+              setAccount(state.address);
+            }
+          }
+        }}
         value={`${formattedAddress.substr(0, 6)}...${formattedAddress.substr(
           -4,
           4

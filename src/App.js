@@ -1,7 +1,7 @@
 import "./App.css";
 import { PostButton } from "./components/PostButton";
 import { useEffect, useState } from "react";
-import { getTweets, postMessage } from "./utils/Utils";
+import { getTweets, postMessage, onboard } from "./utils/Utils";
 import { Message } from "./components/Message";
 import useMetaMask from "./hooks/useMetamask";
 import { Header } from "./components/Header";
@@ -14,9 +14,10 @@ function App() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [account, metamaskInstalled, setAccount] = useMetaMask();
-
+  const onboardStatus = onboard.getState();
+console.log('onStat', onboardStatus)
   async function getMessages() {
-    if (metamaskInstalled) {
+    if (account) {
       const messages = await getTweets();
       setMessages(messages);
     }
@@ -69,21 +70,17 @@ function App() {
     },
   };
   useEffect(() => {
-    if (window?.ethereum?.chainId === "0x4") {
+    if (account) {
       getMessages();
     }
 
-    window?.ethereum?.on("chainChanged", (_chainId) =>
-      window.location.reload()
-    );
   }, [account]);
 
-  return window?.ethereum?.chainId === "0x4" ? (
+  return (
     <div style={styles.outer}>
       <Header
-        account={account}
         setAccount={setAccount}
-        metamaskInstalled={metamaskInstalled}
+        account={account}
       />
       <div style={styles.container}>
         {account ? (
@@ -134,35 +131,6 @@ function App() {
             </div>
           )}
         </div>
-      </div>
-    </div>
-  ) : (
-    <div style={{ ...styles.container }}>
-      <div style={styles.wrongTitle}>
-        {metamaskInstalled ? (
-          !account ? (
-            <div>
-              <BigButton
-                style={{fontSize: 16}}
-                title={"Connect Wallet"}
-                customFillColor={darkBlue}
-                onClick={async () => {
-                  const accounts = await window.ethereum.request({
-                    method: "eth_requestAccounts",
-                  });
-                  window.location.reload()
-                }}
-              />
-            </div>
-          ) : (
-            "Wrong Network!"
-          )
-        ) : (
-          "Install metamask"
-        )}
-      </div>
-      <div style={styles.wrongDescription}>
-        Switch to Rinkeby in your ethereum browser wallet (Metamask)
       </div>
     </div>
   );

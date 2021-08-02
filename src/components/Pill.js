@@ -10,7 +10,8 @@ export function Pill({ value, color='#FFF', fontFamily="Roboto Mono", onClick })
       padding: "8px 10px",
       borderRadius: 12,
       fontSize: 16,
-      cursor: 'pointer'
+      cursor: 'pointer',
+      display: 'inline-block'
     },
   };
   return <div style={styles.container} onClick={onClick}>{value}</div>;
