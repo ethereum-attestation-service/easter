@@ -2,15 +2,23 @@ import { useIsSmallScreen } from "./hooks/useIsSmallScreen";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { Pill } from "./Pill";
+import { getUsername } from "./utils/Utils";
+import { ChangeUsernameDialog } from "./ChangeUsernameDialog";
 
 export function Account({ address }) {
   const isSmall = useIsSmallScreen();
   const formattedAddress = ethers.utils.getAddress(address);
   const [username, setUsername] = useState(null);
+  const [editingUsername, setEditingUsername] = useState(false);
 
-  async function getUsername() {}
+  async function getUser() {
+    const username = await getUsername(address);
+    setUsername(username);
+  }
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    getUser();
+  }, []);
 
   const styles = {
     container: {
@@ -24,7 +32,21 @@ export function Account({ address }) {
   };
   return (
     <div style={styles.container}>
-      <Pill value={'set username'}/>
+      {editingUsername ? (
+        <ChangeUsernameDialog
+          username={username}
+          onFinished={(username) => {
+            if (username) {
+              setUsername(username);
+            }
+            setEditingUsername(false);
+          }}
+        />
+      ) : null}
+      <Pill
+        value={username ? username : "set username"}
+        onClick={() => setEditingUsername(true)}
+      />
       <div style={styles.separator}></div>
       <Pill
         value={`${formattedAddress.substr(0, 6)}...${formattedAddress.substr(

@@ -20,11 +20,13 @@ export function Header({ account, metamaskInstalled, setAccount }) {
       boxSizing: "border-box",
     },
     title: {
+      fontFamily: 'Roboto Mono',
       color: darkBlue,
       fontSize: 24,
-      fontWeight: "600",
+      fontWeight: 600,
       textAlign: "center",
       width: "100%",
+
       // marginTop: 20,
     },
   };

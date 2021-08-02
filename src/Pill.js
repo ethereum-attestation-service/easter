@@ -1,6 +1,6 @@
 import { darkBlue, lightBlue } from "./utils/colors";
 
-export function Pill({ value, color='#FFF', fontFamily="Roboto Mono" }) {
+export function Pill({ value, color='#FFF', fontFamily="Roboto Mono", onClick }) {
   const styles = {
     container: {
       fontFamily: fontFamily,
@@ -13,5 +13,5 @@ export function Pill({ value, color='#FFF', fontFamily="Roboto Mono" }) {
       cursor: 'pointer'
     },
   };
-  return <div style={styles.container}>{value}</div>;
+  return <div style={styles.container} onClick={onClick}>{value}</div>;
 }

@@ -13,7 +13,21 @@ const provider = new ethers.providers.Web3Provider(window.web3.currentProvider);
 const easContract = new ethers.Contract(easAddress, easABI, provider);
 
 export async function setUsername(username) {
+  const signer = provider.getSigner();
+  const easContractSign = new ethers.Contract(easAddress, easABI, signer);
+  const encoded = ethers.utils.defaultAbiCoder.encode(
+    ['bytes32'],
+    [ethers.utils.formatBytes32String(username)]
+  );
+  const params = [
+    zero,
+    usernameUUID,
+    ethers.constants.MaxUint256,
+    ethers.constants.HashZero,
+    encoded,
+  ];
 
+  return await easContractSign.attest.apply(null, params);
 }
 
 export async function postMessage(message) {
@@ -41,27 +55,31 @@ export async function getUsername(address) {
     return usernameCache[address];
   }
 
-  const attestations = await easContract.getSentAttestationUUIDs(
-    address,
-    usernameUUID,
-    0,
-    1,
-    true
-  );
+  try {
+    const attestations = await easContract.getSentAttestationUUIDs(
+      address,
+      usernameUUID,
+      0,
+      1,
+      true
+    );
 
-  if (!attestations.length) {
+    if (!attestations.length) {
+      return null;
+    }
+
+    const nameAttestation = await easContract.getAttestation(attestations[0]);
+    const decoded = ethers.utils.defaultAbiCoder.decode(
+      ["bytes32"],
+      nameAttestation.data
+    );
+    const username = ethers.utils.parseBytes32String(decoded[0]);
+    usernameCache[address] = username;
+
+    return username;
+  } catch(e) {
     return null;
   }
-
-  const nameAttestation = await easContract.getAttestation(attestations[0]);
-  const decoded = ethers.utils.defaultAbiCoder.decode(
-    ["bytes32"],
-    nameAttestation.data
-  );
-  const username = ethers.utils.parseBytes32String(decoded[0]);
-  usernameCache[address] = username;
-
-  return username;
 }
 
 export async function getTweets() {

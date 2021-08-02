@@ -96,7 +96,7 @@ function App() {
                 <PostButton
                   loading={loading}
                   onClick={async () => {
-                    if (loading) return;
+                    if (loading || !input) return;
 
                     const tx = await postMessage(input);
 
@@ -123,8 +123,8 @@ function App() {
             <div>Loading...</div>
           ) : (
             <div>
-              {messages.map((message) => (
-                <Message data={message} />
+              {messages.map((message, i) => (
+                <Message data={message} key={i} />
               ))}
             </div>
           )}
