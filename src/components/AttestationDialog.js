@@ -7,7 +7,7 @@ import {
 } from "../utils/Utils";
 
 import dayjs from "dayjs";
-import { primary45 } from "../utils/colors";
+import {darkBlue} from "../utils/colors";
 
 export default function AttestationDialog({
   attestationData,
@@ -22,6 +22,7 @@ export default function AttestationDialog({
       textOverflow: "wrap",
       whiteSpace: "pre-wrap",
       overflowWrap: "break-word",
+      cursor: 'pointer'
     },
     title: {
       fontWeight: 600,
@@ -30,20 +31,18 @@ export default function AttestationDialog({
     value: {
       marginBottom: 8,
       fontSize: 14,
-      color: primary45,
+      color: darkBlue,
     },
   };
 
 
   const {
-    as,
-    asIndex,
-    to,
-    from,
+    schema,
+    recipient,
+    attester,
     time,
     expirationTime,
     revocationTime,
-    txid,
     data,
     refUUID,
     uuid,
@@ -63,26 +62,26 @@ export default function AttestationDialog({
             <div style={styles.title}>Attestation UUID:</div>
             <div style={{ ...styles.value, ...styles.address }}>{uuid}</div>
 
-            <div style={styles.title}>Schema UUID: (#{asIndex})</div>
-            <div style={{ ...styles.value, ...styles.address }}>{as}</div>
+            <div style={styles.title}>Schema UUID: </div>
+            <div style={{ ...styles.value, ...styles.address }}>{schema}</div>
 
-            <div style={styles.title}>Ethereum Transaction ID:</div>
-            <div style={{ ...styles.value, ...styles.address }}>{txid}</div>
+            {/*<div style={styles.title}>Ethereum Transaction ID:</div>*/}
+            {/*<div style={{ ...styles.value, ...styles.address }}>{txid}</div>*/}
 
             <div style={styles.title}>From:</div>
             <div
               style={{ ...styles.value, ...styles.address }}
-              onClick={() => navigateToEtherscanAddress(from)}
+              onClick={() => navigateToEtherscanAddress(attester)}
             >
-              {from}
+              {attester}
             </div>
 
             <div style={styles.title}>To:</div>
             <div
               style={{ ...styles.value, ...styles.address }}
-              onClick={() => navigateToEtherscanAddress(to)}
+              onClick={() => navigateToEtherscanAddress(recipient)}
             >
-              {to}
+              {recipient}
             </div>
 
             <div style={styles.title}>Timestamp:</div>
