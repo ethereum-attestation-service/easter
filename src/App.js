@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { getTweets, postMessage } from "./utils/Utils";
 import { Message } from "./Message";
 import useMetaMask from "./hooks/useMetamask";
-import { BigButton } from "./BigButton";
 import { Header } from "./Header";
 import {darkBlue} from "./utils/colors";
+import TextareaAutosize from 'react-textarea-autosize';
 
 function App() {
   const [messages, setMessages] = useState(null);
@@ -34,6 +34,7 @@ function App() {
         "rgb(0 0 0 / 1%) 0px 0px 1px, rgb(0 0 0 / 4%) 0px 4px 8px, rgb(0 0 0 / 4%) 0px 16px 24px, rgb(0 0 0 / 1%) 0px 24px 32px",
     },
     input: {
+      fontFamily: 'Open Sans',
       padding: 16,
       borderRadius: 16,
       border: "1px solid #ddd",
@@ -69,7 +70,7 @@ function App() {
       getMessages();
     }
 
-    window.ethereum.on("chainChanged", (_chainId) => window.location.reload());
+    window?.ethereum?.on("chainChanged", (_chainId) => window.location.reload());
   }, []);
 
   return window?.ethereum?.chainId === "0x4" ? (
@@ -84,12 +85,11 @@ function App() {
           <div style={styles.block}>
             <div style={styles.messageInputBlock}>
               <div>
-                <input
-                  type="text"
+                <TextareaAutosize
                   placeholder={"Whats on your mind?"}
                   style={styles.input}
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={(e) => setInput(e.target.value.replace('\n', ''))}
                 />
               </div>
               <div style={styles.tools}>

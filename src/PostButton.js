@@ -8,7 +8,7 @@ export function PostButton({ onClick, loading }) {
       display: "inline-flex",
       alignItems: 'center',
       padding: "8px 16px",
-      borderRadius: 24,
+      borderRadius: 16,
       height: 30,
       fontWeight: "700",
       fontSize: 16,
