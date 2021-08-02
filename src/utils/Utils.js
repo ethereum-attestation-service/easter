@@ -13,6 +13,7 @@ const usernameUUID =
   "0x1a1aac09dcf87a6662ca6f7cfda6cf8ab0d7e2b6fc4afcde3112480a36c563b1";
 let usernameCache = [];
 const RPC_URL = 'https://rinkeby.infura.io/v3/7beca79f4be84480b5557a579b1016dc';
+export const etherscanURL = 'https://rinkeby.etherscan.io';
 
 let provider;
 let easContract
@@ -129,6 +130,7 @@ export async function getTweets() {
         username: await getUsername(attestation.attester),
         from: attestation.attester,
         time: attestation.time.toString(),
+        rawData: attestation,
         message,
       });
     } catch (e) {
@@ -139,4 +141,8 @@ export async function getTweets() {
 
 
   return messages;
+}
+
+export function navigateToEtherscanAddress(address) {
+  window.open(`${etherscanURL}/address/${address}`, '_blank');
 }

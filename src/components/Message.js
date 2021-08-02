@@ -7,7 +7,7 @@ import Linkify from "react-linkify";
 dayjs.extend(relativeTime);
 
 export function Message({ data }) {
-  const { username, from, time, message } = data;
+  const { username, from, time, message, rawData } = data;
   const timeSinceStr = dayjs().to(dayjs.unix(ethers.BigNumber.from(time)));
   const formattedAddress = `${from.substr(0, 6)}...${from.substr(-4, 4)}`;
 
