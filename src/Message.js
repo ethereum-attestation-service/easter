@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { grayBlue } from "./utils/colors";
+import Linkify from "react-linkify";
 
 dayjs.extend(relativeTime);
 
@@ -37,7 +38,17 @@ export function Message({ data }) {
         {username ? username : formattedAddress}{" "}
         <span style={styles.time}>- {timeSinceStr}</span>
       </div>
-      <div style={styles.message}>{message}</div>
+      <div style={styles.message}>
+        <Linkify
+          componentDecorator={(decoratedHref, decoratedText, key) => (
+            <a target="blank" href={decoratedHref} key={key}>
+              {decoratedText}
+            </a>
+          )}
+        >
+          {message}
+        </Linkify>
+      </div>
     </div>
   );
 }

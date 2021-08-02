@@ -8,7 +8,11 @@ const usernameUUID =
   "0x1a1aac09dcf87a6662ca6f7cfda6cf8ab0d7e2b6fc4afcde3112480a36c563b1";
 let usernameCache = [];
 
-const provider = new ethers.providers.Web3Provider(window.web3.currentProvider);
+let provider;
+
+if (window.web3) {
+  provider = new ethers.providers.Web3Provider(window.web3.currentProvider);
+}
 
 const easContract = new ethers.Contract(easAddress, easABI, provider);
 

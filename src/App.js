@@ -5,8 +5,9 @@ import { getTweets, postMessage } from "./utils/Utils";
 import { Message } from "./Message";
 import useMetaMask from "./hooks/useMetamask";
 import { Header } from "./Header";
-import {darkBlue} from "./utils/colors";
-import TextareaAutosize from 'react-textarea-autosize';
+import { darkBlue } from "./utils/colors";
+import TextareaAutosize from "react-textarea-autosize";
+import { BigButton } from "./BigButton";
 
 function App() {
   const [messages, setMessages] = useState(null);
@@ -15,8 +16,10 @@ function App() {
   const [account, metamaskInstalled, setAccount] = useMetaMask();
 
   async function getMessages() {
-    const messages = await getTweets();
-    setMessages(messages);
+    if (metamaskInstalled) {
+      const messages = await getTweets();
+      setMessages(messages);
+    }
   }
 
   const styles = {
@@ -34,7 +37,7 @@ function App() {
         "rgb(0 0 0 / 1%) 0px 0px 1px, rgb(0 0 0 / 4%) 0px 4px 8px, rgb(0 0 0 / 4%) 0px 16px 24px, rgb(0 0 0 / 1%) 0px 24px 32px",
     },
     input: {
-      fontFamily: 'Open Sans',
+      fontFamily: "Open Sans",
       padding: 16,
       borderRadius: 16,
       border: "1px solid #ddd",
@@ -55,23 +58,25 @@ function App() {
     wrongTitle: {
       fontSize: 30,
       fontWeight: 600,
-      textAlign: 'center',
-      color: darkBlue
+      textAlign: "center",
+      color: darkBlue,
     },
     wrongDescription: {
       fontSize: 16,
-      textAlign: 'center',
+      textAlign: "center",
       color: darkBlue,
       marginTop: 20,
-    }
+    },
   };
   useEffect(() => {
     if (window?.ethereum?.chainId === "0x4") {
       getMessages();
     }
 
-    window?.ethereum?.on("chainChanged", (_chainId) => window.location.reload());
-  }, []);
+    window?.ethereum?.on("chainChanged", (_chainId) =>
+      window.location.reload()
+    );
+  }, [account]);
 
   return window?.ethereum?.chainId === "0x4" ? (
     <div style={styles.outer}>
@@ -89,7 +94,7 @@ function App() {
                   placeholder={"Whats on your mind?"}
                   style={styles.input}
                   value={input}
-                  onChange={(e) => setInput(e.target.value.replace('\n', ''))}
+                  onChange={(e) => setInput(e.target.value.replace("\n", ""))}
                 />
               </div>
               <div style={styles.tools}>
@@ -132,9 +137,33 @@ function App() {
       </div>
     </div>
   ) : (
-    <div style={{...styles.container}}>
-      <div style={styles.wrongTitle}>Wrong Network!</div>
-      <div style={styles.wrongDescription}>Switch to Rinkeby in your ethereum browser wallet (Metamask)</div>
+    <div style={{ ...styles.container }}>
+      <div style={styles.wrongTitle}>
+        {metamaskInstalled ? (
+          !account ? (
+            <div>
+              <BigButton
+                style={{fontSize: 16}}
+                title={"Connect Wallet"}
+                customFillColor={darkBlue}
+                onClick={async () => {
+                  const accounts = await window.ethereum.request({
+                    method: "eth_requestAccounts",
+                  });
+                  window.location.reload()
+                }}
+              />
+            </div>
+          ) : (
+            "Wrong Network!"
+          )
+        ) : (
+          "Install metamask"
+        )}
+      </div>
+      <div style={styles.wrongDescription}>
+        Switch to Rinkeby in your ethereum browser wallet (Metamask)
+      </div>
     </div>
   );
 }
