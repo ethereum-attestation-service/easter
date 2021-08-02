@@ -12,7 +12,7 @@ export function Header({ account, setAccount }) {
   const styles = {
     container: {
       margin: "0 auto",
-      padding: isSmall?10:20,
+      padding: isSmall ? 10 : 20,
       paddingTop: 10,
       display: isSmall ? "block" : "flex",
       justifyContent: "space-between",
@@ -21,13 +21,14 @@ export function Header({ account, setAccount }) {
       boxSizing: "border-box",
     },
     title: {
-      marginBottom: isSmall? 10: 0,
+      marginBottom: isSmall ? 10 : 0,
       fontFamily: "Roboto Mono",
       color: darkBlue,
       fontSize: 24,
       fontWeight: 600,
       textAlign: "center",
       width: "100%",
+      cursor: 'pointer',
     },
   };
 
@@ -53,7 +54,9 @@ export function Header({ account, setAccount }) {
   return (
     <div style={styles.container}>
       <div style={styles.left}>
-        <div style={styles.title}>EASter</div>
+        <div style={styles.title} onClick={() => (document.location = "/#/")}>
+          EASter
+        </div>
       </div>
       <div style={styles.right}>
         {!account ? (

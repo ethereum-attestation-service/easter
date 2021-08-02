@@ -7,7 +7,7 @@ import {
 } from "../utils/Utils";
 
 import dayjs from "dayjs";
-import {darkBlue} from "../utils/colors";
+import {darkBlue, grayBlue} from "../utils/colors";
 
 export default function AttestationDialog({
   attestationData,
@@ -25,6 +25,7 @@ export default function AttestationDialog({
       cursor: 'pointer'
     },
     title: {
+      color: grayBlue,
       fontWeight: 600,
       fontSize: 14,
     },

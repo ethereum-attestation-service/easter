@@ -103,18 +103,7 @@ export async function getUsername(address) {
   }
 }
 
-export async function getTweets() {
-  const attestations = await easContract.getSchemaAttestationUUIDs(
-    messageUUID,
-    0,
-    100,
-    true
-  );
-  const attestationPromises = attestations.map((attestation) =>
-    easContract.getAttestation(attestation)
-  );
-  const resolved = await Promise.all(attestationPromises);
-
+async function formatTweets(resolved) {
   let messages = [];
 
   for (let attestation of resolved) {
@@ -134,13 +123,46 @@ export async function getTweets() {
         message,
       });
     } catch (e) {
-      console.log('Failed to decode attestation', attestation);
+      console.log("Failed to decode attestation", attestation);
     }
-
   }
 
-
   return messages;
+}
+
+export function navigateToAddress(address) {
+  document.location = `/#/address/${address}`;
+}
+
+export async function getTweets() {
+  const attestations = await easContract.getSchemaAttestationUUIDs(
+    messageUUID,
+    0,
+    100,
+    true
+  );
+  const attestationPromises = attestations.map((attestation) =>
+    easContract.getAttestation(attestation)
+  );
+  const resolved = await Promise.all(attestationPromises);
+
+  return await formatTweets(resolved);
+}
+
+export async function getTweetsFromAddress(address) {
+  const attestations = await easContract.getSentAttestationUUIDs(
+    address,
+    messageUUID,
+    0,
+    100,
+    true
+  );
+  const attestationPromises = attestations.map((attestation) =>
+    easContract.getAttestation(attestation)
+  );
+  const resolved = await Promise.all(attestationPromises);
+
+  return await formatTweets(resolved);
 }
 
 export function navigateToEtherscanAddress(address) {

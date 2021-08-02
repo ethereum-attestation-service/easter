@@ -5,6 +5,7 @@ import { darkBlue, grayBlue } from "../utils/colors";
 import Linkify from "react-linkify";
 import AttestationDialog from "./AttestationDialog";
 import { useState } from "react";
+import { navigateToAddress } from "../utils/Utils";
 
 dayjs.extend(relativeTime);
 
@@ -26,6 +27,7 @@ export function Message({ data }) {
       textOverflow: "wrap",
       whiteSpace: "pre-wrap",
       overflowWrap: "break-word",
+      cursor: 'pointer',
     },
     message: {
       color: grayBlue,
@@ -54,7 +56,7 @@ export function Message({ data }) {
         />
       ) : null}
       <div style={styles.top}>
-        <div style={styles.user}>
+        <div style={styles.user} onClick={() => navigateToAddress(from)}>
           {username ? username : formattedAddress}{" "}
           <span style={styles.time}>- {timeSinceStr}</span>
         </div>
