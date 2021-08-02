@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import {grayBlue} from "./utils/colors";
 dayjs.extend(relativeTime);
 
 export function Message({data}) {
@@ -10,10 +11,18 @@ export function Message({data}) {
   const styles = {
     container: {
       padding: "20px 10px",
-      borderBottom: '1px solid #eee'
+      borderBottom: '1px solid #eee',
+      overflow: 'hidden'
     },
     user: {
-      fontWeight: '600'
+      fontWeight: '600',
+      color: grayBlue,
+      textOverflow: "wrap",
+      whiteSpace: "pre-wrap",
+      overflowWrap: "break-word",
+    },
+    message: {
+      color: grayBlue,
     },
     time: {
       color: 'rgb(83, 100, 113)',
@@ -22,6 +31,6 @@ export function Message({data}) {
   }
   return <div style={styles.container}>
     <div style={styles.user}>{username?username:from} <span style={styles.time}>- {timeSinceStr}</span></div>
-    <div>{message}</div>
+    <div style={styles.message}>{message}</div>
   </div>;
 }

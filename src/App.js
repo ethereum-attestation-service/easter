@@ -1,10 +1,12 @@
 import "./App.css";
 import { PostButton } from "./PostButton";
 import { useEffect, useState } from "react";
-import { getTweets, postMessage } from "./Utils";
+import { getTweets, postMessage } from "./utils/Utils";
 import { Message } from "./Message";
 import useMetaMask from "./hooks/useMetamask";
 import { BigButton } from "./BigButton";
+import { Header } from "./Header";
+import {darkBlue} from "./utils/colors";
 
 function App() {
   const [messages, setMessages] = useState(null);
@@ -19,21 +21,21 @@ function App() {
 
   const styles = {
     container: {
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "center",
+      margin: "0 auto",
+      maxWidth: 800,
+      padding: 10,
     },
     block: {
-      maxWidth: 800,
-      padding: 20,
-      flexGrow: 1,
+      padding: 12,
       backgroundColor: "#FFF",
-      borderRadius: 8,
-      marginTop: 20,
+      borderRadius: 24,
+      marginBottom: 4,
+      boxShadow:
+        "rgb(0 0 0 / 1%) 0px 0px 1px, rgb(0 0 0 / 4%) 0px 4px 8px, rgb(0 0 0 / 4%) 0px 16px 24px, rgb(0 0 0 / 1%) 0px 24px 32px",
     },
     input: {
       padding: 16,
-      borderRadius: 6,
+      borderRadius: 16,
       border: "1px solid #ddd",
       width: "100%",
       boxSizing: "border-box",
@@ -45,45 +47,40 @@ function App() {
       justifyContent: "flex-end",
       marginTop: 8,
     },
-    title: {
-      color: "#FFF",
-      fontSize: 34,
-      fontWeight: "600",
-      textAlign: "center",
-      width: "100%",
-      marginTop: 20,
-    },
+
     connectButton: {
       marginTop: 8,
     },
+    wrongTitle: {
+      fontSize: 30,
+      fontWeight: 600,
+      textAlign: 'center',
+      color: darkBlue
+    },
+    wrongDescription: {
+      fontSize: 16,
+      textAlign: 'center',
+      color: darkBlue,
+      marginTop: 20,
+    }
   };
   useEffect(() => {
+    if (window?.ethereum?.chainId === "0x4") {
+      getMessages();
+    }
 
-    getMessages();
+    window.ethereum.on("chainChanged", (_chainId) => window.location.reload());
   }, []);
 
-  return (
+  return window?.ethereum?.chainId === "0x4" ? (
     <div style={styles.outer}>
-      <div style={styles.title}>EAS-ter</div>
+      <Header
+        account={account}
+        setAccount={setAccount}
+        metamaskInstalled={metamaskInstalled}
+      />
       <div style={styles.container}>
-        {!metamaskInstalled ? (
-          <div>Metamask required to post</div>
-        ) : !account ? (
-          <div>
-            <BigButton
-              title={"Connect wallet to post"}
-              style={styles.connectButton}
-              onClick={async () => {
-                const accounts = await window.ethereum.request({
-                  method: "eth_requestAccounts",
-                });
-                const account = accounts[0];
-
-                setAccount(account);
-              }}
-            />
-          </div>
-        ) : (
+        {account ? (
           <div style={styles.block}>
             <div style={styles.messageInputBlock}>
               <div>
@@ -117,7 +114,7 @@ function App() {
               </div>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
 
       <div style={styles.container}>
@@ -133,6 +130,11 @@ function App() {
           )}
         </div>
       </div>
+    </div>
+  ) : (
+    <div style={{...styles.container}}>
+      <div style={styles.wrongTitle}>Wrong Network!</div>
+      <div style={styles.wrongDescription}>Switch to Rinkeby in your ethereum browser wallet (Metamask)</div>
     </div>
   );
 }

@@ -1,11 +1,15 @@
+import {darkBlue} from "./utils/colors";
+
 export function PostButton({ onClick, loading }) {
   const styles = {
     container: {
-      backgroundColor: "#46acff",
+      backgroundColor: darkBlue,
       color: "#FFF",
-      display: "inline-block",
+      display: "inline-flex",
+      alignItems: 'center',
       padding: "8px 16px",
-      borderRadius: 20,
+      borderRadius: 24,
+      height: 30,
       fontWeight: "700",
       fontSize: 16,
       cursor: "pointer",

@@ -1,5 +1,5 @@
 const ethers = require("ethers");
-const easABI = require("./EASabi.json");
+const easABI = require("../EASabi.json");
 const zero = "0x0000000000000000000000000000000000000000";
 const easAddress = "0xBf49E19254DF70328C6696135958C94CD6cd0430";
 const messageUUID =
