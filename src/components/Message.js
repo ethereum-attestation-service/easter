@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { grayBlue } from "./utils/colors";
+import { grayBlue } from "../utils/colors";
 import Linkify from "react-linkify";
 
 dayjs.extend(relativeTime);

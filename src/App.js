@@ -1,13 +1,13 @@
 import "./App.css";
-import { PostButton } from "./PostButton";
+import { PostButton } from "./components/PostButton";
 import { useEffect, useState } from "react";
 import { getTweets, postMessage } from "./utils/Utils";
-import { Message } from "./Message";
+import { Message } from "./components/Message";
 import useMetaMask from "./hooks/useMetamask";
-import { Header } from "./Header";
+import { Header } from "./components/Header";
 import { darkBlue } from "./utils/colors";
 import TextareaAutosize from "react-textarea-autosize";
-import { BigButton } from "./BigButton";
+import { BigButton } from "./components/BigButton";
 
 function App() {
   const [messages, setMessages] = useState(null);

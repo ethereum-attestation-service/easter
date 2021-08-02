@@ -1,5 +1,5 @@
 import React from 'react';
-import {darkBlue} from './utils/colors';
+import {darkBlue} from '../utils/colors';
 import {FaTimes} from 'react-icons/fa';
 import {Modal} from './Modal';
 

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Dialog } from "./Dialog";
-import { darkBlue, lightBlue } from "./utils/colors";
+import { darkBlue, lightBlue } from "../utils/colors";
 import { BigButton } from "./BigButton";
-import {setUsername} from "./utils/Utils";
+import {setUsername} from "../utils/Utils";
 
 export function ChangeUsernameDialog({ username, onFinished }) {
   const [input, setInput] = useState(username);

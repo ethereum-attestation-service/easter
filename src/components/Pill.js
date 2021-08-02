@@ -1,4 +1,4 @@
-import { darkBlue, lightBlue } from "./utils/colors";
+import { darkBlue, lightBlue } from "../utils/colors";
 
 export function Pill({ value, color='#FFF', fontFamily="Roboto Mono", onClick }) {
   const styles = {

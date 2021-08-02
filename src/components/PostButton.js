@@ -1,4 +1,4 @@
-import {darkBlue} from "./utils/colors";
+import {darkBlue} from "../utils/colors";
 
 export function PostButton({ onClick, loading }) {
   const styles = {

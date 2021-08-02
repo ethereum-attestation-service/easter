@@ -1,7 +1,7 @@
-import { darkBlue } from "./utils/colors";
+import { darkBlue } from "../utils/colors";
 import { BigButton } from "./BigButton";
 import { Account } from "./Account";
-import {useIsSmallScreen} from "./hooks/useIsSmallScreen";
+import {useIsSmallScreen} from "../hooks/useIsSmallScreen";
 
 export function Header({ account, metamaskInstalled, setAccount }) {
   const isSmall = useIsSmallScreen()

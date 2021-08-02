@@ -1,8 +1,8 @@
-import { useIsSmallScreen } from "./hooks/useIsSmallScreen";
+import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { Pill } from "./Pill";
-import { getUsername } from "./utils/Utils";
+import { getUsername } from "../utils/Utils";
 import { ChangeUsernameDialog } from "./ChangeUsernameDialog";
 
 export function Account({ address }) {
