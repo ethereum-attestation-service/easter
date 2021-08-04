@@ -1,26 +1,32 @@
 import { ethers } from "ethers";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { darkBlue, grayBlue } from "../utils/colors";
+import { grayBlue } from "../utils/colors";
 import Linkify from "react-linkify";
-import AttestationDialog from "./AttestationDialog";
 import { useState } from "react";
-import { navigateToAddress, revokeMessage } from "../utils/Utils";
+import {
+  formatGraphMessages,
+  navigateToAddress,
+  revokeMessage,
+} from "../utils/Utils";
+import { ReplyBlock } from "./ReplyBlock";
 
 dayjs.extend(relativeTime);
 
-export function Message({ data, account }) {
-  const { username, from, time, message } = data;
+export function Message({ data, account, loadMessages, isReply }) {
+  const { username, from, time, message, refUUID, uuid, relatedMessages } =
+    data;
   const timeSinceStr = dayjs().to(dayjs.unix(ethers.BigNumber.from(time)));
   const formattedAddress = `${from.substr(0, 6)}...${from.substr(-4, 4)}`;
-  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [replyOpen, setReplyOpen] = useState(false);
   const [hiding, setHiding] = useState(false);
   const [hidden, setHidden] = useState(false);
 
   const styles = {
     container: {
       padding: "20px 10px",
-      borderBottom: "1px solid #eee",
+      paddingBottom: isReply ? 0 : 20,
+      borderBottom: isReply ? null : "1px solid #eee",
       overflow: "hidden",
     },
     user: {
@@ -43,10 +49,15 @@ export function Message({ data, account }) {
       justifyContent: "space-between",
     },
     details: {
+      display: "inline-block",
+      marginRight: 8,
       fontSize: 14,
       cursor: "pointer",
       color: grayBlue,
       textDecoration: "underline",
+    },
+    tools: {
+      marginTop: 10,
     },
   };
 
@@ -54,37 +65,10 @@ export function Message({ data, account }) {
 
   return (
     <div style={styles.container}>
-      {/*{detailsOpen ? (*/}
-      {/*  <AttestationDialog*/}
-      {/*    onClose={() => setDetailsOpen(false)}*/}
-      {/*    attestationData={data}*/}
-      {/*  />*/}
-      {/*) : null}*/}
       <div style={styles.top}>
         <div style={styles.user} onClick={() => navigateToAddress(from)}>
           {username ? username : formattedAddress}{" "}
           <span style={styles.time}>- {timeSinceStr}</span>
-        </div>
-        <div>
-          {/*<div style={styles.details} onClick={() => setDetailsOpen(true)}>*/}
-          {/*  Details*/}
-          {/*</div>*/}
-
-          <div
-            style={styles.details}
-            onClick={async () => {
-              const tx = await revokeMessage(data.uuid);
-
-              if (tx) {
-                setHiding(true);
-                await tx.wait();
-                setHiding(false);
-                setHidden(true);
-              }
-            }}
-          >
-            {account && ethers.utils.getAddress(account) === ethers.utils.getAddress(from) ? (hiding ? "Hiding..." : "Hide") : null}
-          </div>
         </div>
       </div>
       <div style={styles.message}>
@@ -98,6 +82,55 @@ export function Message({ data, account }) {
           {message}
         </Linkify>
       </div>
+
+      <div style={styles.tools}>
+        {account &&
+        ethers.utils.getAddress(account) === ethers.utils.getAddress(from) ? (
+          <div
+            style={styles.details}
+            onClick={async () => {
+              const tx = await revokeMessage(data.uuid);
+
+              if (tx) {
+                setHiding(true);
+                await tx.wait();
+                setHiding(false);
+                setHidden(true);
+              }
+            }}
+          >
+            {hiding ? "Hiding..." : "Hide"}
+          </div>
+        ) : null}
+
+        {replyOpen ? (
+          <ReplyBlock
+            user={username ? username : from}
+            refUUID={uuid}
+            onFinished={() => {
+              loadMessages();
+              setReplyOpen(false);
+            }}
+          />
+        ) : null}
+
+        <div style={styles.details} onClick={async () => setReplyOpen(true)}>
+          Reply
+        </div>
+      </div>
+
+      {relatedMessages?.length ? (
+        <div style={styles.replies}>
+          {formatGraphMessages(relatedMessages).map((message) => (
+            <Message
+              account={account}
+              data={message}
+              loadMessages={loadMessages}
+              isReply={true}
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

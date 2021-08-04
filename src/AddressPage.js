@@ -36,7 +36,7 @@ function AddressPage({match}) {
     if (account) {
       getMessages();
     }
-  }, [account]);
+  }, [account, address]);
 
   return (
     <div style={styles.outer}>
@@ -56,7 +56,7 @@ function AddressPage({match}) {
           ) : (
             <div>
               {messages.map((message, i) => (
-                <Message data={message} key={i} />
+                <Message data={message} key={i} account={account} loadMessages={getMessages} />
               ))}
             </div>
           )}
