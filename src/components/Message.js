@@ -9,7 +9,7 @@ import { navigateToAddress, revokeMessage } from "../utils/Utils";
 
 dayjs.extend(relativeTime);
 
-export function Message({ data }) {
+export function Message({ data, account }) {
   const { username, from, time, message } = data;
   const timeSinceStr = dayjs().to(dayjs.unix(ethers.BigNumber.from(time)));
   const formattedAddress = `${from.substr(0, 6)}...${from.substr(-4, 4)}`;
@@ -83,7 +83,7 @@ export function Message({ data }) {
               }
             }}
           >
-            {hiding ? "Hiding..." : "Hide"}
+            {account === from ? (hiding ? "Hiding..." : "Hide") : null}
           </div>
         </div>
       </div>

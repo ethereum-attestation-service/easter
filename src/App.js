@@ -51,7 +51,7 @@ function App() {
           ) : (
             <div>
               {messages.map((message, i) => (
-                <Message data={message} key={i} />
+                <Message data={message} key={i} account={account} />
               ))}
             </div>
           )}
