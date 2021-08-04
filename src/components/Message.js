@@ -83,7 +83,7 @@ export function Message({ data, account }) {
               }
             }}
           >
-            {ethers.utils.getAddress(account) === ethers.utils.getAddress(from) ? (hiding ? "Hiding..." : "Hide") : null}
+            {account && ethers.utils.getAddress(account) === ethers.utils.getAddress(from) ? (hiding ? "Hiding..." : "Hide") : null}
           </div>
         </div>
       </div>
