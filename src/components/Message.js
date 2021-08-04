@@ -13,7 +13,7 @@ import { ReplyBlock } from "./ReplyBlock";
 
 dayjs.extend(relativeTime);
 
-export function Message({ data, account }) {
+export function Message({ data, account, loadMessages, isReply }) {
   const { username, from, time, message, refUUID, uuid, relatedMessages } =
     data;
   const timeSinceStr = dayjs().to(dayjs.unix(ethers.BigNumber.from(time)));
@@ -25,7 +25,8 @@ export function Message({ data, account }) {
   const styles = {
     container: {
       padding: "20px 10px",
-      borderBottom: "1px solid #eee",
+      paddingBottom: isReply ? 0 : 20,
+      borderBottom: isReply ? null : "1px solid #eee",
       overflow: "hidden",
     },
     user: {
@@ -82,7 +83,6 @@ export function Message({ data, account }) {
         </Linkify>
       </div>
 
-
       <div style={styles.tools}>
         {account &&
         ethers.utils.getAddress(account) === ethers.utils.getAddress(from) ? (
@@ -104,7 +104,14 @@ export function Message({ data, account }) {
         ) : null}
 
         {replyOpen ? (
-          <ReplyBlock user={username ? username : from} refUUID={uuid} />
+          <ReplyBlock
+            user={username ? username : from}
+            refUUID={uuid}
+            onFinished={() => {
+              loadMessages();
+              setReplyOpen(false);
+            }}
+          />
         ) : null}
 
         <div style={styles.details} onClick={async () => setReplyOpen(true)}>
@@ -115,11 +122,15 @@ export function Message({ data, account }) {
       {relatedMessages?.length ? (
         <div style={styles.replies}>
           {formatGraphMessages(relatedMessages).map((message) => (
-            <Message account={account} data={message} />
+            <Message
+              account={account}
+              data={message}
+              loadMessages={loadMessages}
+              isReply={true}
+            />
           ))}
         </div>
       ) : null}
-
     </div>
   );
 }

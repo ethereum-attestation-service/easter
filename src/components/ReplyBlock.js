@@ -4,7 +4,7 @@ import { useState } from "react";
 import { BigButton } from "./BigButton";
 import { postMessage } from "../utils/Utils";
 
-export function ReplyBlock({ user, refUUID }) {
+export function ReplyBlock({ user, refUUID, onFinished }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 console.log('trf', refUUID)
@@ -56,7 +56,7 @@ console.log('trf', refUUID)
 
             setLoading(false);
             setInput("");
-            // setTimeout(onFinished, 500);
+            setTimeout(onFinished, 1500);
           }, 50);
         }}
       />
