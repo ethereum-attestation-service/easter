@@ -2,6 +2,7 @@ import { recoverTypedSignature_v4 } from "eth-sig-util";
 import axios from "axios";
 import Onboard from "bnc-onboard";
 
+const graphAPIUrl = "https://api.studio.thegraph.com/query/4717/easter/v0.6.32";
 const ethers = require("ethers");
 const easABI = require("../abis/EASabi.json");
 
@@ -44,7 +45,9 @@ export const onboard = Onboard({
 });
 
 export async function getBalance(address) {
-  return await provider.getBalance(address);
+  return (await provider)
+    ? provider?.getBalance(address)
+    : ethers.constants.Zero;
 }
 
 export async function setUsername(username) {
@@ -196,36 +199,17 @@ export async function postMessage712(message) {
   };
 }
 
-export async function getUsername(address) {
-  if (usernameCache[address]) {
-    return usernameCache[address];
+export async function getUsernameGraph(address) {
+  const result = await axios.post(graphAPIUrl, {
+    query: `{
+
+  user(id: "${address}") {
+    usernameData
   }
+}`,
+  });
 
-  try {
-    const attestations = await easContract.getSentAttestationUUIDs(
-      address,
-      usernameUUID,
-      0,
-      1,
-      true
-    );
-
-    if (!attestations.length) {
-      return null;
-    }
-
-    const nameAttestation = await easContract.getAttestation(attestations[0]);
-    const decoded = ethers.utils.defaultAbiCoder.decode(
-      ["bytes32"],
-      nameAttestation.data
-    );
-    const username = ethers.utils.parseBytes32String(decoded[0]);
-    usernameCache[address] = username;
-
-    return username;
-  } catch (e) {
-    return null;
-  }
+  return result.data.data.user ? decodeUsername(result.data.data.user.usernameData) : null;
 }
 
 function decodeUsername(data) {
@@ -257,11 +241,8 @@ export function formatGraphMessages(unformattedMessages) {
 }
 
 export async function getTweetsFromAddress(address) {
-  console.log("aa", ethers.utils.getAddress(address));
-  const result = await axios.post(
-    "https://api.studio.thegraph.com/query/4717/easter/v0.6.32",
-    {
-      query: `{
+  const result = await axios.post(graphAPIUrl, {
+    query: `{
   messages(first: 100, orderDirection: desc, orderBy: time, where: {revoked:false, attester: "${address}",refUUIDString: "${ethers.constants.HashZero}"}) {
     relatedMessages(where: {revoked:false}, orderDirection: desc, orderBy: time) {
       attester
@@ -295,17 +276,14 @@ export async function getTweetsFromAddress(address) {
   }
  
 }`,
-    }
-  );
+  });
 
   return formatGraphMessages(result.data.data.messages);
 }
 
 export async function getTweets() {
-  const result = await axios.post(
-    "https://api.studio.thegraph.com/query/4717/easter/v0.6.32",
-    {
-      query: `{
+  const result = await axios.post(graphAPIUrl, {
+    query: `{
   messages(first: 100, orderDirection: desc, orderBy: time, where: {revoked:false, refUUIDString: "${ethers.constants.HashZero}"}) {
     relatedMessages(where: {revoked:false}, orderDirection: desc, orderBy: time) {
       attester
@@ -340,8 +318,7 @@ export async function getTweets() {
  
 }
 `,
-    }
-  );
+  });
 
   return formatGraphMessages(result.data.data.messages);
 }

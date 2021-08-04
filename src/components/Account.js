@@ -2,7 +2,7 @@ import { useIsSmallScreen } from "../hooks/useIsSmallScreen";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { Pill } from "./Pill";
-import {getBalance, getUsername, onboard} from "../utils/Utils";
+import {getBalance, getUsername, getUsernameGraph, onboard} from "../utils/Utils";
 import { ChangeUsernameDialog } from "./ChangeUsernameDialog";
 
 export function Account({ address, setAccount }) {
@@ -13,7 +13,7 @@ export function Account({ address, setAccount }) {
   const [editingUsername, setEditingUsername] = useState(false);
 
   async function getUser() {
-    const username = await getUsername(address);
+    const username = await getUsernameGraph(address);
     setUsername(username);
 
     const balance = await getBalance(address);
