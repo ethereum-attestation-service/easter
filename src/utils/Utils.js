@@ -1,6 +1,7 @@
 import { recoverTypedSignature_v4 } from "eth-sig-util";
-
+import axios from "axios";
 import Onboard from "bnc-onboard";
+
 const ethers = require("ethers");
 const easABI = require("../abis/EASabi.json");
 
@@ -63,6 +64,13 @@ export async function setUsername(username) {
   return await easContractSign.attest.apply(null, params);
 }
 
+export async function revokeMessage(uuid) {
+  const signer = provider.getSigner();
+  const easContractSign = new ethers.Contract(easAddress, easABI, signer);
+
+  return await easContractSign.revoke(uuid);
+}
+
 export async function postMessage(message) {
   const signer = provider.getSigner();
   const easContractSign = new ethers.Contract(easAddress, easABI, signer);
@@ -103,7 +111,7 @@ function sendAsyncPromise(method) {
 export async function testProxyAttestation(signedObj) {
   try {
     const easContract = new ethers.Contract(easAddress, easABI, provider);
-    const delResult = await easContract.estimateGas.attestByDelegation(
+    await easContract.estimateGas.attestByDelegation(
       signedObj.recipient,
       signedObj.schema,
       signedObj.expirationTime,
@@ -116,7 +124,7 @@ export async function testProxyAttestation(signedObj) {
     );
 
     return true;
-  } catch(e) {
+  } catch (e) {
     return false;
   }
 }
@@ -143,7 +151,7 @@ export async function verifyProxyAttestation(req, signingAddress) {
 export async function makeProxyAttestation(params) {
   const signingAddress = window.ethereum.selectedAddress;
   const sign = async (message) => {
-    const res =  await sendAsyncPromise({
+    const res = await sendAsyncPromise({
       method: "eth_signTypedData_v4",
       params: [signingAddress, message],
       from: signingAddress,
@@ -219,66 +227,80 @@ export async function getUsername(address) {
   }
 }
 
-async function formatTweets(resolved) {
-  let messages = [];
+function decodeUsername(data) {
+  const decoded = ethers.utils.defaultAbiCoder.decode(["bytes32"], data);
+  return ethers.utils.parseBytes32String(decoded[0]);
+}
 
-  for (let attestation of resolved) {
-    try {
-      const decoded = ethers.utils.defaultAbiCoder.decode(
-        ["bytes"],
-        attestation.data
-      );
+function decodeTweetData(data) {
+  const decoded = ethers.utils.defaultAbiCoder.decode(["bytes"], data);
 
-      const message = ethers.utils.toUtf8String(decoded[0]);
-
-      messages.push({
-        username: await getUsername(attestation.attester),
-        from: attestation.attester,
-        time: attestation.time.toString(),
-        rawData: attestation,
-        message,
-      });
-    } catch (e) {
-      console.log("Failed to decode attestation", attestation);
-    }
-  }
-
-  return messages;
+  return ethers.utils.toUtf8String(decoded[0]);
 }
 
 export function navigateToAddress(address) {
   document.location = `/#/address/${address}`;
 }
 
-export async function getTweets() {
-  const attestations = await easContract.getSchemaAttestationUUIDs(
-    messageUUID,
-    0,
-    100,
-    true
-  );
-  const attestationPromises = attestations.map((attestation) =>
-    easContract.getAttestation(attestation)
-  );
-  const resolved = await Promise.all(attestationPromises);
-
-  return await formatTweets(resolved);
+function formatGraphMessages(result) {
+  return result.data.data.messages.map((message) => ({
+    uuid: message.id,
+    from: message.attester,
+    time: message.time,
+    rawData: message.data,
+    message: decodeTweetData(message.data),
+    username: message.user ? decodeUsername(message.user.usernameData) : null,
+  }));
 }
 
 export async function getTweetsFromAddress(address) {
-  const attestations = await easContract.getSentAttestationUUIDs(
-    address,
-    messageUUID,
-    0,
-    100,
-    true
-  );
-  const attestationPromises = attestations.map((attestation) =>
-    easContract.getAttestation(attestation)
-  );
-  const resolved = await Promise.all(attestationPromises);
+  console.log("aa", ethers.utils.getAddress(address));
+  const result = await axios.post(
+    "https://api.studio.thegraph.com/query/4717/easter/v0.6.29",
+    {
+      query: `{
+  messages(first: 100, orderDirection: desc, orderBy: time, where: {revoked:false, attester: "${address}"}) {
+    id
+    data
+    recipient
+    time
+    attester
+    user {
+      usernameData
+    }
+  }
+ 
+}
 
-  return await formatTweets(resolved);
+`,
+    }
+  );
+
+  return formatGraphMessages(result);
+}
+
+export async function getTweets() {
+  const result = await axios.post(
+    "https://api.studio.thegraph.com/query/4717/easter/v0.6.29",
+    {
+      query: `{
+  messages(first: 100, orderDirection: desc, orderBy: time, where: {revoked:false}) {
+    id
+    data
+    recipient
+    time
+    attester
+    user {
+      usernameData
+    }
+  }
+ 
+}
+`,
+    }
+  );
+
+  return formatGraphMessages(result);
 }
 
 export function navigateToEtherscanAddress(address) {

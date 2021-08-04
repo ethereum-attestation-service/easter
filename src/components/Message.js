@@ -5,15 +5,17 @@ import { darkBlue, grayBlue } from "../utils/colors";
 import Linkify from "react-linkify";
 import AttestationDialog from "./AttestationDialog";
 import { useState } from "react";
-import { navigateToAddress } from "../utils/Utils";
+import { navigateToAddress, revokeMessage } from "../utils/Utils";
 
 dayjs.extend(relativeTime);
 
 export function Message({ data }) {
-  const { username, from, time, message, rawData } = data;
+  const { username, from, time, message } = data;
   const timeSinceStr = dayjs().to(dayjs.unix(ethers.BigNumber.from(time)));
   const formattedAddress = `${from.substr(0, 6)}...${from.substr(-4, 4)}`;
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [hiding, setHiding] = useState(false);
+  const [hidden, setHidden] = useState(false);
 
   const styles = {
     container: {
@@ -27,7 +29,7 @@ export function Message({ data }) {
       textOverflow: "wrap",
       whiteSpace: "pre-wrap",
       overflowWrap: "break-word",
-      cursor: 'pointer',
+      cursor: "pointer",
     },
     message: {
       color: grayBlue,
@@ -47,22 +49,41 @@ export function Message({ data }) {
       textDecoration: "underline",
     },
   };
+
+  if (hidden) return null;
+
   return (
     <div style={styles.container}>
-      {detailsOpen ? (
-        <AttestationDialog
-          onClose={() => setDetailsOpen(false)}
-          attestationData={rawData}
-        />
-      ) : null}
+      {/*{detailsOpen ? (*/}
+      {/*  <AttestationDialog*/}
+      {/*    onClose={() => setDetailsOpen(false)}*/}
+      {/*    attestationData={data}*/}
+      {/*  />*/}
+      {/*) : null}*/}
       <div style={styles.top}>
         <div style={styles.user} onClick={() => navigateToAddress(from)}>
           {username ? username : formattedAddress}{" "}
           <span style={styles.time}>- {timeSinceStr}</span>
         </div>
         <div>
-          <div style={styles.details} onClick={() => setDetailsOpen(true)}>
-            Details
+          {/*<div style={styles.details} onClick={() => setDetailsOpen(true)}>*/}
+          {/*  Details*/}
+          {/*</div>*/}
+
+          <div
+            style={styles.details}
+            onClick={async () => {
+              const tx = await revokeMessage(data.uuid);
+
+              if (tx) {
+                setHiding(true);
+                await tx.wait();
+                setHiding(false);
+                setHidden(true);
+              }
+            }}
+          >
+            {hiding ? "Hiding..." : "Hide"}
           </div>
         </div>
       </div>

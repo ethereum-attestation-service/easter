@@ -10,10 +10,8 @@ function App() {
   const [account, setAccount] = useState(null);
 
   async function getMessages() {
-    if (account) {
-      const messages = await getTweets();
-      setMessages(messages);
-    }
+    const messages = await getTweets();
+    setMessages(messages);
   }
 
   const styles = {
@@ -32,10 +30,8 @@ function App() {
     },
   };
   useEffect(() => {
-    if (account) {
-      getMessages();
-    }
-  }, [account]);
+    getMessages();
+  }, []);
 
   return (
     <div style={styles.outer}>
