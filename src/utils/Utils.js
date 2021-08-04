@@ -9,7 +9,8 @@ const verifierABI = require("../abis/verifierABI.json");
 const blockNativeAPIKey = "0822d008-0624-4b0f-a5d5-24aac01cdd72";
 export const EASVersion = "0.6"; // Rinkeby
 export const CHAINID = 4;
-const zero = "0x0000000000000000000000000000000000000000";
+const zeroAddress = "0x0000000000000000000000000000000000000000";
+
 const easAddress = "0xBf49E19254DF70328C6696135958C94CD6cd0430";
 export const EAS712Address = "0xa05e3Ca02C8437E99018E55cC3920FD79f4FD624"; // Rinkeby
 const messageUUID =
@@ -54,7 +55,7 @@ export async function setUsername(username) {
     [ethers.utils.formatBytes32String(username)]
   );
   const params = [
-    zero,
+    zeroAddress,
     usernameUUID,
     ethers.constants.MaxUint256,
     ethers.constants.HashZero,
@@ -71,7 +72,7 @@ export async function revokeMessage(uuid) {
   return await easContractSign.revoke(uuid);
 }
 
-export async function postMessage(message) {
+export async function postMessage(message, refUUID) {
   const signer = provider.getSigner();
   const easContractSign = new ethers.Contract(easAddress, easABI, signer);
   const encoded = ethers.utils.defaultAbiCoder.encode(
@@ -79,10 +80,10 @@ export async function postMessage(message) {
     [ethers.utils.toUtf8Bytes(message)]
   );
   const params = [
-    zero,
+    zeroAddress,
     messageUUID,
     ethers.constants.MaxUint256,
-    ethers.constants.HashZero,
+    refUUID ? refUUID : ethers.constants.HashZero,
     encoded,
   ];
 
@@ -179,7 +180,7 @@ export async function postMessage712(message) {
 
   // Attest by delegation
   const proxyParams = {
-    recipient: zero,
+    recipient: zeroAddress,
     schema: messageUUID,
     expirationTime: ethers.constants.MaxUint256.toString(),
     refUUID: ethers.constants.HashZero,
@@ -242,24 +243,47 @@ export function navigateToAddress(address) {
   document.location = `/#/address/${address}`;
 }
 
-function formatGraphMessages(result) {
-  return result.data.data.messages.map((message) => ({
+export function formatGraphMessages(unformattedMessages) {
+  return unformattedMessages.map((message) => ({
     uuid: message.id,
     from: message.attester,
     time: message.time,
     rawData: message.data,
+    refUUID: message.refUUID,
     message: decodeTweetData(message.data),
     username: message.user ? decodeUsername(message.user.usernameData) : null,
+    relatedMessages: message.relatedMessages,
   }));
 }
 
 export async function getTweetsFromAddress(address) {
   console.log("aa", ethers.utils.getAddress(address));
   const result = await axios.post(
-    "https://api.studio.thegraph.com/query/4717/easter/v0.6.29",
+    "https://api.studio.thegraph.com/query/4717/easter/v0.6.32",
     {
       query: `{
-  messages(first: 100, orderDirection: desc, orderBy: time, where: {revoked:false, attester: "${address}"}) {
+  messages(first: 100, orderDirection: desc, orderBy: time, where: {revoked:false, attester: "${address}",refUUIDString: "${ethers.constants.HashZero}"}) {
+    relatedMessages(where: {revoked:false}, orderDirection: desc, orderBy: time) {
+      attester
+      id
+      data
+      time
+      relatedMessages(where: {revoked:false}, orderDirection: desc, orderBy: time) {
+        attester
+        id
+        data
+        time
+        user {
+          usernameData
+        }
+      }
+      user {
+        usernameData
+      }
+    }
+    refUUID {
+      id
+    }
     id
     data
     recipient
@@ -270,21 +294,40 @@ export async function getTweetsFromAddress(address) {
     }
   }
  
-}
-
-`,
+}`,
     }
   );
 
-  return formatGraphMessages(result);
+  return formatGraphMessages(result.data.data.messages);
 }
 
 export async function getTweets() {
   const result = await axios.post(
-    "https://api.studio.thegraph.com/query/4717/easter/v0.6.29",
+    "https://api.studio.thegraph.com/query/4717/easter/v0.6.32",
     {
       query: `{
-  messages(first: 100, orderDirection: desc, orderBy: time, where: {revoked:false}) {
+  messages(first: 100, orderDirection: desc, orderBy: time, where: {revoked:false, refUUIDString: "${ethers.constants.HashZero}"}) {
+    relatedMessages(where: {revoked:false}, orderDirection: desc, orderBy: time) {
+      attester
+      id
+      data
+      relatedMessages(where: {revoked:false}, orderDirection: desc, orderBy: time) {
+        attester
+        id
+        data
+        time
+        user {
+          usernameData
+        }
+      }
+      time
+      user {
+        usernameData
+      }
+    }
+    refUUID {
+      id
+    }
     id
     data
     recipient
@@ -300,7 +343,7 @@ export async function getTweets() {
     }
   );
 
-  return formatGraphMessages(result);
+  return formatGraphMessages(result.data.data.messages);
 }
 
 export function navigateToEtherscanAddress(address) {

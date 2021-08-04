@@ -2,6 +2,7 @@ import { useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { PostButton } from "./components/PostButton";
 import { postMessage } from "./utils/Utils";
+import {grayBlue} from "./utils/colors";
 
 export function PostBlock({ account, onFinished }) {
   const [input, setInput] = useState("");
@@ -30,6 +31,7 @@ export function PostBlock({ account, onFinished }) {
       boxSizing: "border-box",
       fontSize: 18,
       outline: 0,
+      color: grayBlue,
     },
     tools: {
       display: "flex",

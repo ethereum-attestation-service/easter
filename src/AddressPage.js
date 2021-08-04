@@ -36,7 +36,7 @@ function AddressPage({match}) {
     if (account) {
       getMessages();
     }
-  }, [account]);
+  }, [account, address]);
 
   return (
     <div style={styles.outer}>
