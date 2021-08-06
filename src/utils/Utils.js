@@ -209,18 +209,27 @@ export async function getUsernameGraph(address) {
 }`,
   });
 
-  return result.data.data.user ? decodeUsername(result.data.data.user.usernameData) : null;
+  return result.data.data.user
+    ? decodeUsername(result.data.data.user.usernameData)
+    : null;
 }
 
 function decodeUsername(data) {
-  const decoded = ethers.utils.defaultAbiCoder.decode(["bytes32"], data);
-  return ethers.utils.parseBytes32String(decoded[0]);
+  try {
+    const decoded = ethers.utils.defaultAbiCoder.decode(["bytes32"], data);
+    return ethers.utils.parseBytes32String(decoded[0]);
+  } catch (e) {
+    return null;
+  }
 }
 
 function decodeTweetData(data) {
-  const decoded = ethers.utils.defaultAbiCoder.decode(["bytes"], data);
-
-  return ethers.utils.toUtf8String(decoded[0]);
+  try {
+    const decoded = ethers.utils.defaultAbiCoder.decode(["bytes"], data);
+    return ethers.utils.toUtf8String(decoded[0]);
+  } catch (e) {
+    return "Error decoding message.";
+  }
 }
 
 export function navigateToAddress(address) {
